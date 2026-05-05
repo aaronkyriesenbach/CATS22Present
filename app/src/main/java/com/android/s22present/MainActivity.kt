@@ -4,9 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.hardware.display.DisplayManager
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.os.UEventObserver
 import android.util.Log
 import android.widget.Button
 import android.widget.ProgressBar
@@ -17,7 +14,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.topjohnwu.superuser.Shell
 import org.lsposed.hiddenapibypass.HiddenApiBypass
 
 // Clue's in the name.
@@ -38,7 +34,6 @@ class MainActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-        findViewById<Button>(R.id.buttonSecondScreen).isEnabled = true
         // Grab the loading bar and reset the progress
         val progress : ProgressBar = findViewById(R.id.progressBar)
         val progresstext : TextView = findViewById(R.id.textViewProgress)
@@ -65,8 +60,6 @@ class MainActivity : AppCompatActivity() {
                 Globals.loadingtext = progresstext
                 Globals.loading.progress = 1
                 Globals.loadingtext.text = "Got displays"
-                // Disable command button.
-                findViewById<Button>(R.id.buttonSecondScreen).isEnabled = false
                 // Identify the service
                 val serviceintent = Intent(this, ListenerService::class.java)
                 // Kill existing service
@@ -89,33 +82,6 @@ class MainActivity : AppCompatActivity() {
             Toast.makeText(this, "No second display found. Run the commands!", 2500).show()
             progress.progress = 0
             progresstext.text = "No second display found!"
-        }
-        // When the user pushes the commands button
-        findViewById<Button>(R.id.buttonSecondScreen).setOnClickListener{
-            Log.i("S22PresMain", "Secondary screen activation requested. Asking for root.")
-            // Obtain root access by creating a SU shell.
-            Shell.getShell()
-            // If root access is granted
-            if (Shell.isAppGrantedRoot() == true)
-            {
-                // Execute shell commands to activate second screen.
-                Log.w("S22PresMain", "Root achieved. Running commands... System will soft reboot!")
-                Shell.cmd("settings put global hidden_api_policy 1","setprop ro.vendor.gsi.image_running false","setprop vendor.display.disable_skip_validate 1","setprop ro.hdmi.enable true", "setprop tunnel.decode true", "ro.qualcomm.cabl 2", "ro.vendor.display.cabl 2", "config.cabl.xml 1", "setprop ctl.restart vendor.hwcomposer-2-1").exec()
-                // If the system hasn't rebooted after 3 seconds.
-                Handler(Looper.getMainLooper()).postDelayed(
-                {
-                    // Notify user that commands failed.
-                    Log.e("S22PresMain", "App is still running. The commands failed! Check device is rooted.")
-                    Toast.makeText(this, "Commands failed. Check device is rooted.", 2500).show()
-                }, 3000)
-            }
-            // If no root access is obtained.
-            else
-            {
-                // Notify user that root access wasn't achieved.
-                Log.w("S22PressMain", "Check device is rooted.")
-                Toast.makeText(this, "Have you got root access?", 2500).show()
-            }
         }
         // When user pushes the notification settings button.
         findViewById<Button>(R.id.buttonNotify).setOnClickListener{

@@ -18,14 +18,12 @@ import android.os.IBinder
 import android.os.Looper
 import android.os.Message
 import android.os.Messenger
-import android.os.UEventObserver
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.telephony.TelephonyManager
 import android.util.Log
 import android.view.Display
 import android.view.WindowManager
-import android.view.WindowManagerGlobal
 import androidx.core.view.isInvisible
 import com.topjohnwu.superuser.ipc.RootService
 import java.io.File
@@ -152,13 +150,14 @@ class ListenerService : Service()
                 }
             }
             fun wakeup(){
-                if(display1.state== Display.STATE_OFF)
+                if(display1.state== Display.STATE_OFF) {
                      request = Message.obtain(null, 3, 0, 0)
                     Handler(Looper.getMainLooper()).postDelayed(
                         {
                             Log.v("S22PresListServ", "Action requiring screen on detected")
                             rootservice?.send(request)
                         }, 100)
+                }
             }
         }
         val sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
@@ -257,8 +256,8 @@ class NotificationService : NotificationListenerService() {
                 if (packageName == "it.vfsfitvnm.vimusic" || packageName == "com.google.android.apps.youtube.music" || packageName == "com.spotify.music" || packageName == "org.fossify.musicplayer") {
                     Log.v("S22PresNotifServ", "Music")
                     musicactive = true
-                    musicnotiftitle = title
-                    musicnotiftext = text
+                    musicnotiftitle = title ?: ""
+                    musicnotiftext = text ?: ""
                     when(Globals.visual)
                     {
                         1->{Globals.visualbar.isInvisible = false}

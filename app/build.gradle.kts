@@ -1,12 +1,10 @@
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.jetbrains.kotlin.android)
 }
 
 android {
     namespace = "com.android.s22present"
-    //noinspection GradleDependency
-    compileSdk = 34
+    compileSdk = 36
     lint {
         baseline = file("lint-baseline.xml")
     }
@@ -14,7 +12,7 @@ android {
         applicationId = "com.android.s22present"
         minSdk = 30
         //noinspection ExpiredTargetSdkVersion
-        targetSdk = 34
+        targetSdk = 36
         versionCode = 3
         versionName = "0.2.1"
 
@@ -31,11 +29,8 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
-    }
-    kotlinOptions {
-        jvmTarget = "1.8"
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     buildFeatures{
         viewBinding = true

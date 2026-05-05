@@ -20,23 +20,13 @@
         app:layout_constraintVertical_bias="0.054" />
 
     <Button
-        android:id="@+id/buttonSecondScreen"
-        android:layout_width="178dp"
-        android:layout_height="63dp"
-        android:layout_marginBottom="16dp"
-        android:text="Activate second screen"
-        android:textSize="12sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <Button
         android:id="@+id/buttonNotify"
         android:layout_width="178dp"
         android:layout_height="62dp"
+        android:layout_marginBottom="16dp"
         android:text="Allow notifications"
         android:textSize="12sp"
-        app:layout_constraintBottom_toTopOf="@+id/buttonSecondScreen"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 

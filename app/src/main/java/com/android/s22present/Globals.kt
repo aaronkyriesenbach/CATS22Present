@@ -6,7 +6,6 @@ import android.os.IBinder
 import android.view.SurfaceControl
 import android.view.SurfaceView
 import android.view.View
-import android.view.WindowManagerGlobal
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.core.content.ContextCompat
@@ -22,6 +21,7 @@ class Globals
     {
         val sfids = SurfaceControl::class.java.getMethod("getPhysicalDisplayIds").invoke(null) as LongArray
         val token = SurfaceControl::class.java.getMethod("getPhysicalDisplayToken", Long::class.java).invoke(null, sfids[1])
+        val token1 = SurfaceControl::class.java.getMethod("getPhysicalDisplayToken", Long::class.java).invoke(null, sfids[0])
         // Make Presentation content variable (currently allows for multiple presets, full customization will require more work than this).
         // UI Element storage. Technically doing this can potentially create a memory leak but this doesn't.
         lateinit var datefield : TextView

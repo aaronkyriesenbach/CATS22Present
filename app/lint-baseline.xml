@@ -179,17 +179,6 @@
 
     <issue
         id="HardcodedText"
-        message="Hardcoded string &quot;Activate second screen&quot;, should use `@string` resource"
-        errorLine1="        android:text=&quot;Activate second screen&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_main.xml"
-            line="27"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
         message="Hardcoded string &quot;Allow notifications&quot;, should use `@string` resource"
         errorLine1="        android:text=&quot;Allow notifications&quot;"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">

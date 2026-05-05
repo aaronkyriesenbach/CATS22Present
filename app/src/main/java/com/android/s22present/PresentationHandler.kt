@@ -1,7 +1,6 @@
 package com.android.s22present
 
 import android.animation.ObjectAnimator
-import android.app.ActivityTaskManager.RootTaskInfo
 import android.app.Presentation
 import android.content.Context
 import android.graphics.Color
@@ -9,16 +8,11 @@ import android.media.AudioTrack
 import android.media.MediaPlayer
 import android.media.MediaRecorder
 import android.os.Bundle
-import android.os.ShellCommand
-import android.text.Layout
 import android.util.Log
 import android.view.Display
-import android.view.DisplayInfo
 import android.view.SurfaceView
 import android.view.View
 import android.view.WindowManager
-import android.view.WindowManager.ShellRootLayer
-import android.view.WindowManagerGlobal
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.core.view.isInvisible
