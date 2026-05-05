@@ -45,13 +45,13 @@ class ListenerService : Service()
             // Check that a messenger was actually received (in some of my testing it'd report connected, but the ScreenService wasn't actually running)
             if(rootservice!=null)
             {
-                        Globals.loading.progress = 5
-                        Globals.loadingtext.text = "Done!"
+                        Globals.loading?.progress = 5
+                        Globals.loadingtext?.text = "Done!"
                         Log.i("S22PresScreenServInit", "Done!")
             } else {
                 // If there's no messenger, empty the progress bar and log it.
-                Globals.loading.progress = 0
-                Globals.loadingtext.text = "Couldn't connect to ScreenService!"
+                Globals.loading?.progress = 0
+                Globals.loadingtext?.text = "Couldn't connect to ScreenService!"
                 Log.d("S22PresScreenServInit", "Failed!")
             }
         }
@@ -64,8 +64,8 @@ class ListenerService : Service()
     // This function starts the ScreenService before it is actually required and binds to it.
     fun startscreenservice(): Unit?
     {
-        Globals.loading.progress = 4
-        Globals.loadingtext.text = "Starting ScreenService..."
+        Globals.loading?.progress = 4
+        Globals.loadingtext?.text = "Starting ScreenService..."
         Log.i("S22PresListServInit", "Let's get the service for the screen running...")
         // Identify ScreenService
         val intent = Intent(this, ScreenService::class.java)
@@ -97,8 +97,8 @@ class ListenerService : Service()
         present.show()
         // When this service starts.
         // Update Progress bar and log.
-        Globals.loading.progress = 3
-        Globals.loadingtext.text = "ListenerService Started!"
+        Globals.loading?.progress = 3
+        Globals.loadingtext?.text = "ListenerService Started!"
         // Bind to ScreenService.
         startscreenservice()
         // Create a variable to store requests for ScreenService.

@@ -13,6 +13,7 @@
     <uses-permission android:name="android.hardware.sensor.proximity"/>
     <uses-permission android:name = "android.permission.RECORD_AUDIO"/>
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <application
         android:allowBackup="true"
         android:process="S22Present.App"
@@ -46,5 +47,12 @@
             <action android:name="android.service.notification.NotificationListenerService" />
         </intent-filter>
         </service>
+        <receiver
+            android:name=".BootReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
     </application>
 </manifest>

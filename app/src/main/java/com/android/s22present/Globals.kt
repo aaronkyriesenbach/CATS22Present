@@ -26,8 +26,8 @@ class Globals
         // UI Element storage. Technically doing this can potentially create a memory leak but this doesn't.
         lateinit var datefield : TextView
         lateinit var titlefield : TextView
-        lateinit var loading : ProgressBar
-        lateinit var loadingtext : TextView
+        var loading: ProgressBar? = null
+        var loadingtext: TextView? = null
         lateinit var timefield : TextView
         lateinit var contentfield : TextView
         var visual : Int = 0

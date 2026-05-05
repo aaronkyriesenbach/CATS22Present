@@ -2,6 +2,7 @@ package com.android.s22present
 
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.hardware.display.DisplayManager
 import android.os.Bundle
 import android.util.Log
@@ -39,6 +40,17 @@ class MainActivity : AppCompatActivity() {
         val progresstext : TextView = findViewById(R.id.textViewProgress)
         progress.progress = 0
         progresstext.text = "Starting..."
+        // Request runtime permissions for RECORD_AUDIO (visualizer) and READ_PHONE_STATE (call state)
+        val permissionsToRequest = mutableListOf<String>()
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            permissionsToRequest.add(android.Manifest.permission.RECORD_AUDIO)
+        }
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+            permissionsToRequest.add(android.Manifest.permission.READ_PHONE_STATE)
+        }
+        if (permissionsToRequest.isNotEmpty()) {
+            requestPermissions(permissionsToRequest.toTypedArray(), 1)
+        }
         // Try to find display [1]
         val displaymanager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
         try {
@@ -58,8 +70,8 @@ class MainActivity : AppCompatActivity() {
                 // Push displays and UI elements to globals (referencing globals without a second display causes a crash which is why it's done here)
                 Globals.loading = progress
                 Globals.loadingtext = progresstext
-                Globals.loading.progress = 1
-                Globals.loadingtext.text = "Got displays"
+                Globals.loading?.progress = 1
+                Globals.loadingtext?.text = "Got displays"
                 // Identify the service
                 val serviceintent = Intent(this, ListenerService::class.java)
                 // Kill existing service
@@ -68,8 +80,8 @@ class MainActivity : AppCompatActivity() {
                 // Run service and update progress
                 Log.i("S22PresMainInit", "Asking Services to Run.")
                 startService(serviceintent)
-                Globals.loading.progress = 2
-                Globals.loadingtext.text = "Starting ListenerService"
+                Globals.loading?.progress = 2
+                Globals.loadingtext?.text = "Starting ListenerService"
                 val white =  ContextCompat.getColor(this, R.color.grey)
                 Log.i("S22PresMainInit", "White = $white")
             }

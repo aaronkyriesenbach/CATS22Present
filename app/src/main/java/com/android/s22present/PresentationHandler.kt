@@ -3,6 +3,7 @@ package com.android.s22present
 import android.animation.ObjectAnimator
 import android.app.Presentation
 import android.content.Context
+import android.content.pm.PackageManager
 import android.graphics.Color
 import android.media.AudioTrack
 import android.media.MediaPlayer
@@ -89,19 +90,35 @@ class PresentationHandler(context: Context, display: Display?): Presentation(con
         }
         fun squarevis()
         {
-            visualSquare.isEnabled = true
-            visualSquare.isInvisible = true
-            visualSquare.setPlayer(0)
-            visualSquare.setDensity(12F)
-            Globals.visual = 2
+            if (ContextCompat.checkSelfPermission(context, android.Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+                Log.w("S22PresHandlerInit", "RECORD_AUDIO not granted, skipping visualizer")
+                return
+            }
+            try {
+                visualSquare.isEnabled = true
+                visualSquare.isInvisible = true
+                visualSquare.setPlayer(0)
+                visualSquare.setDensity(12F)
+                Globals.visual = 2
+            } catch (e: SecurityException) {
+                Log.e("S22PresHandlerInit", "SecurityException initializing visualizer", e)
+            }
         }
         fun barvis()
         {
-            visual.isEnabled = true
-            visual.isInvisible = true
-            visual.setPlayer(0)
-            visual.setDensity(20F)
-            Globals.visual = 1
+            if (ContextCompat.checkSelfPermission(context, android.Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+                Log.w("S22PresHandlerInit", "RECORD_AUDIO not granted, skipping visualizer")
+                return
+            }
+            try {
+                visual.isEnabled = true
+                visual.isInvisible = true
+                visual.setPlayer(0)
+                visual.setDensity(20F)
+                Globals.visual = 1
+            } catch (e: SecurityException) {
+                Log.e("S22PresHandlerInit", "SecurityException initializing visualizer", e)
+            }
         }
         if(Globals.style=="1")
         {
