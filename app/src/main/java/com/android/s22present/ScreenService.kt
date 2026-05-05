@@ -31,6 +31,10 @@ class ScreenService : RootService()
                         Runtime.getRuntime().exec("input keyevent KEYCODE_WAKEUP")
                         Log.v("S22PresScreenServ", "Wakeup!")
                     }
+                    4 -> {
+                        Runtime.getRuntime().exec("input keyevent KEYCODE_SLEEP")
+                        Log.v("S22PresScreenServ", "Sleep!")
+                    }
                     2 -> {
                         setDisplayPowerMode.invoke(null, Globals.token1 as IBinder?, powerModeOff)
                         Log.v("S22PresScreenServ", "Turning off!")

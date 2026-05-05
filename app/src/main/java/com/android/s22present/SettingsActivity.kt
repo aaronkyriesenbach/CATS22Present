@@ -49,8 +49,10 @@ class SettingsActivity : AppCompatActivity() {
         val filedir = File(filesDir, file)
         val fontdefault = "0"
         val styledefault = "0"
+        val wakeTimeoutDefault = Globals.DEFAULT_WAKE_TIMEOUT_INDEX.toString()
         var fontset = fontdefault
         var styleset = styledefault
+        var wakeTimeoutSet = wakeTimeoutDefault
         lateinit var settings: Array<String>
         try {
             Log.i("S22PresSetting", "Looking for settings..")
@@ -60,31 +62,39 @@ class SettingsActivity : AppCompatActivity() {
             openFileOutput(file, Context.MODE_PRIVATE)
             filedir.writeText(styledefault.plus("|"))
             filedir.appendText(fontdefault.plus("|"))
+            filedir.appendText(wakeTimeoutDefault.plus("|"))
         }
         Log.i("S22PresSetting", "Settings loaded.")
         try {
             settings = filedir.readText().split("|").toTypedArray()
             styleset = settings[0].toString()
             fontset = settings[1].toString()
+            wakeTimeoutSet = if (settings.size > 2 && settings[2].isNotEmpty()) settings[2] else wakeTimeoutDefault
             findViewById<Spinner>(R.id.spinnerstyle).setSelection(settings[0].toInt())
             findViewById<Spinner>(R.id.spinnerfont).setSelection(settings[1].toInt())
+            findViewById<Spinner>(R.id.spinnerWakeTimeout).setSelection(wakeTimeoutSet.toInt())
         } catch (e: Exception) {
             Log.e("S22PresSetting", "Settings in wrong format! Likely due to an update. Resetting!")
             openFileOutput(file, Context.MODE_PRIVATE)
             filedir.writeText(styledefault)
             filedir.appendText(fontdefault)
+            filedir.appendText(wakeTimeoutDefault)
             settings = filedir.readText().split("|").toTypedArray()
             styleset = settings[0].toString()
             fontset = settings[1].toString()
+            wakeTimeoutSet = wakeTimeoutDefault
             findViewById<Spinner>(R.id.spinnerstyle).setSelection(settings[0].toInt())
             findViewById<Spinner>(R.id.spinnerfont).setSelection(settings[1].toInt())
+            findViewById<Spinner>(R.id.spinnerWakeTimeout).setSelection(wakeTimeoutSet.toInt())
         }
         Log.i("S22PresSetting", "Got $styleset $fontset")
         findViewById<Button>(R.id.buttonReset).setOnClickListener {
             styleset = "0"
             fontset = "0"
+            wakeTimeoutSet = wakeTimeoutDefault
             findViewById<Spinner>(R.id.spinnerstyle).setSelection(settings[0].toInt())
             findViewById<Spinner>(R.id.spinnerfont).setSelection(settings[1].toInt())
+            findViewById<Spinner>(R.id.spinnerWakeTimeout).setSelection(wakeTimeoutSet.toInt())
         }
         findViewById<Spinner>(R.id.spinnerstyle).onItemSelectedListener =
             object : AdapterView.OnItemSelectedListener {
@@ -118,9 +128,26 @@ class SettingsActivity : AppCompatActivity() {
                     findViewById<Spinner>(R.id.spinnerfont).setSelection(settings[1].toInt())
                 }
             }
+        findViewById<Spinner>(R.id.spinnerWakeTimeout).onItemSelectedListener =
+            object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(
+                    parent: AdapterView<*>,
+                    view: View,
+                    position: Int,
+                    id: Long
+                ) {
+                    wakeTimeoutSet =
+                        findViewById<Spinner>(R.id.spinnerWakeTimeout).selectedItemPosition.toString()
+                }
+
+                override fun onNothingSelected(parent: AdapterView<*>?) {
+                    findViewById<Spinner>(R.id.spinnerWakeTimeout).setSelection(wakeTimeoutSet.toInt())
+                }
+            }
         findViewById<Button>(R.id.buttonsave).setOnClickListener {
             filedir.writeText(styleset.plus("|"))
             filedir.appendText(fontset.plus("|"))
+            filedir.appendText(wakeTimeoutSet.plus("|"))
             val serviceintent = Intent(this, ListenerService::class.java)
             Log.i("S22PresListServ", "Restarting...")
             stopService(serviceintent)

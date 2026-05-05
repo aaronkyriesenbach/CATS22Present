@@ -38,6 +38,11 @@ class ListenerService : Service()
     }
     // Create a connection between the two services.
     var rootservice: Messenger? = null
+    private val wakeTimeoutHandler = Handler(Looper.getMainLooper())
+    private val wakeTimeoutRunnable = Runnable {
+        Log.v("S22PresListServ", "Wake timeout, putting device to sleep")
+        sendToRoot(Message.obtain(null, 4, 0, 0))
+    }
     val RootConnect = object : ServiceConnection
     {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?)
@@ -81,6 +86,14 @@ class ListenerService : Service()
     }
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int
     {
+        if (intent?.action == WakeReceiver.ACTION_WAKE_DISPLAY) {
+            Log.v("S22PresListServ", "Wake display requested")
+            wakeTimeoutHandler.removeCallbacks(wakeTimeoutRunnable)
+            sendToRoot(Message.obtain(null, 3, 0, 0))
+            wakeTimeoutHandler.postDelayed(wakeTimeoutRunnable, Globals.wakeTimeoutMs)
+            return START_NOT_STICKY
+        }
+
         isRunning = true
         Log.i("S22PresListServInit", "Hello!")
         val displaymanager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
@@ -93,6 +106,9 @@ class ListenerService : Service()
             val settings = filedir.readText().split("|").toTypedArray()
             Globals.style = settings[0].toString()
             Globals.font = settings[1].toString()
+            if (settings.size > 2 && settings[2].isNotEmpty()) {
+                Globals.wakeTimeoutMs = Globals.wakeTimeoutMsForIndex(settings[2].toInt())
+            }
         }
         catch (e: Exception)
         {
@@ -116,6 +132,7 @@ class ListenerService : Service()
                 if (intent.action == "com.android.s22present.LIDOPEN")
                 {
                     lid = "open"
+                    wakeTimeoutHandler.removeCallbacks(wakeTimeoutRunnable)
                     wakeup()
                 }
                 if (intent.action == "com.android.s22present.LIDCLOSED")
@@ -213,7 +230,7 @@ class ListenerService : Service()
         screenStateFilter.addAction("com.android.s22present.LIDOPEN")
         screenStateFilter.addAction(TelephonyManager.ACTION_PHONE_STATE_CHANGED)
         // Start the Receiver with the filter we just created.
-        registerReceiver(screenStateReciever, screenStateFilter)
+        registerReceiver(screenStateReciever, screenStateFilter, Context.RECEIVER_NOT_EXPORTED)
         Log.i("S22PresListServInit", "Listening...")
         return START_NOT_STICKY
     }
