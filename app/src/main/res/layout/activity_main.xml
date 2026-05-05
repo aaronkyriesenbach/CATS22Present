@@ -9,60 +9,249 @@
 
     <TextView
         android:id="@+id/textViewheading"
-        android:layout_width="92dp"
-        android:layout_height="26dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:text="S22 Present"
         android:textAlignment="center"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.054" />
+        app:layout_constraintBottom_toTopOf="@+id/textViewStatus"
+        app:layout_constraintVertical_chainStyle="packed"
+        app:layout_constraintVertical_bias="0.0"
+        android:layout_marginTop="24dp" />
 
-    <Button
-        android:id="@+id/buttonNotify"
-        android:layout_width="178dp"
-        android:layout_height="62dp"
-        android:layout_marginBottom="16dp"
-        android:text="Allow notifications"
-        android:textSize="12sp"
-        app:layout_constraintBottom_toBottomOf="parent"
+    <TextView
+        android:id="@+id/textViewStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:textSize="14sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewheading"
+        app:layout_constraintBottom_toTopOf="@+id/permissionsHeader" />
+
+    <TextView
+        android:id="@+id/permissionsHeader"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Permissions"
+        android:textSize="13sp"
+        android:textStyle="bold"
+        android:layout_marginTop="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewStatus"
+        app:layout_constraintBottom_toTopOf="@+id/permissionsHint" />
+
+    <TextView
+        android:id="@+id/permissionsHint"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Tap a permission to grant it"
+        android:textSize="11sp"
+        android:textColor="@color/grey"
+        android:layout_marginTop="2dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/permissionsHeader"
+        app:layout_constraintBottom_toTopOf="@+id/permissionsTable" />
+
+    <LinearLayout
+        android:id="@+id/permissionsTable"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="8dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/permissionsHint"
+        app:layout_constraintBottom_toTopOf="@+id/buttonSetting">
+
+        <!-- Record Audio -->
+        <LinearLayout
+            android:id="@+id/rowRecordAudio"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Record Audio"
+                    android:textSize="13sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Required for audio visualizer"
+                    android:textSize="10sp"
+                    android:textColor="@color/grey" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/statusRecordAudio"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="13sp"
+                tools:text="\u2717" />
+        </LinearLayout>
+
+        <!-- Read Phone State -->
+        <LinearLayout
+            android:id="@+id/rowReadPhoneState"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Phone State"
+                    android:textSize="13sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Required for call detection"
+                    android:textSize="10sp"
+                    android:textColor="@color/grey" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/statusReadPhoneState"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="13sp"
+                tools:text="\u2717" />
+        </LinearLayout>
+
+        <!-- Notification Listener -->
+        <LinearLayout
+            android:id="@+id/rowNotificationListener"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Notifications"
+                    android:textSize="13sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Required to show notifications on secondary display"
+                    android:textSize="10sp"
+                    android:textColor="@color/grey" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/statusNotificationListener"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="13sp"
+                tools:text="\u2717" />
+        </LinearLayout>
+
+        <!-- Root Access -->
+        <LinearLayout
+            android:id="@+id/rowRootAccess"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Root Access"
+                    android:textSize="13sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Required for display power control"
+                    android:textSize="10sp"
+                    android:textColor="@color/grey" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/statusRootAccess"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="13sp"
+                tools:text="\u2717" />
+        </LinearLayout>
+
+    </LinearLayout>
 
     <Button
         android:id="@+id/buttonSetting"
         android:layout_width="178dp"
         android:layout_height="62dp"
+        android:layout_marginBottom="16dp"
         android:text="Settings"
         android:textSize="12sp"
-        app:layout_constraintBottom_toTopOf="@+id/buttonNotify"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
-
-    <ProgressBar
-        android:id="@+id/progressBar"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="200dp"
-        android:layout_height="32dp"
-        android:indeterminate="false"
-        android:indeterminateBehavior="repeat"
-        android:indeterminateDrawable="@android:drawable/progress_indeterminate_horizontal"
-        android:max="5"
-        android:maxHeight="20dip"
-        android:progress="0"
-        android:progressDrawable="@android:drawable/progress_horizontal"
-        android:progressTint="#03A9F4"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textViewheading" />
-
-    <TextView
-        android:id="@+id/textViewProgress"
-        android:layout_width="198dp"
-        android:layout_height="22dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/progressBar" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -20,22 +20,34 @@ class ScreenService : RootService()
     internal class IncomingHandler(
         context: Context,
     ) : Handler() {
-        // Grab Display 2 Token
         override fun handleMessage(msg: Message) {
-            val setDisplayPowerMode = SurfaceControl::class.java.getMethod(
-                "setDisplayPowerMode", IBinder::class.java, Int::class.java
-            )
-            val powerModeOff = 0
-            when (msg.what) {
-                3 ->{Runtime.getRuntime().exec("input keyevent KEYCODE_WAKEUP"); Log.v("S22PresScreenServ", "Wakeup!")}
-                2 ->{setDisplayPowerMode.invoke(null, Globals.token1 as IBinder?, powerModeOff); Log.v("S22PresScreenServ", "Turning off!")}
-                1 ->{setDisplayPowerMode.invoke(null, Globals.token as IBinder?, powerModeOff); Log.v("S22PresScreenServ", "Turning off!")}
-                // If the message isn't recognised.
-                else ->
-                    // Log it.
-                    {
-                    Log.e("S22PresScreenServ", "I wasn't told anything meaningful... ${msg.what}")
+            try {
+                val setDisplayPowerMode = SurfaceControl::class.java.getMethod(
+                    "setDisplayPowerMode", IBinder::class.java, Int::class.java
+                )
+                val powerModeOff = 0
+                when (msg.what) {
+                    3 -> {
+                        Runtime.getRuntime().exec("input keyevent KEYCODE_WAKEUP")
+                        Log.v("S22PresScreenServ", "Wakeup!")
                     }
+                    2 -> {
+                        setDisplayPowerMode.invoke(null, Globals.token1 as IBinder?, powerModeOff)
+                        Log.v("S22PresScreenServ", "Turning off!")
+                    }
+                    1 -> {
+                        setDisplayPowerMode.invoke(null, Globals.token as IBinder?, powerModeOff)
+                        Log.v("S22PresScreenServ", "Turning off!")
+                    }
+                    // If the message isn't recognised.
+                    else -> {
+                        Log.e("S22PresScreenServ", "I wasn't told anything meaningful... ${msg.what}")
+                    }
+                }
+            } catch (e: ReflectiveOperationException) {
+                Log.e("S22PresScreenServ", "SurfaceControl operation failed — root or privileged access may be missing", e)
+            } catch (e: SecurityException) {
+                Log.e("S22PresScreenServ", "Permission denied for SurfaceControl operation", e)
             }
         }
     }

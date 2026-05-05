@@ -6,7 +6,6 @@ import android.os.IBinder
 import android.view.SurfaceControl
 import android.view.SurfaceView
 import android.view.View
-import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import com.chibde.visualizer.BarVisualizer
@@ -26,8 +25,7 @@ class Globals
         // UI Element storage. Technically doing this can potentially create a memory leak but this doesn't.
         lateinit var datefield : TextView
         lateinit var titlefield : TextView
-        var loading: ProgressBar? = null
-        var loadingtext: TextView? = null
+        var statusText: TextView? = null
         lateinit var timefield : TextView
         lateinit var contentfield : TextView
         var visual : Int = 0
@@ -35,5 +33,7 @@ class Globals
         lateinit var visualsquare: SquareBarVisualizer
         var style = "0"
         var font = "0"
+        var rootAvailable = false
+        var onRootStatusChanged: (() -> Unit)? = null
     }
 }

@@ -33,6 +33,9 @@ import java.io.File
 // These tasks have to be separated into two services since RootServices cannot do things that require context like register Broadcast receivers, but normal services can't do root things like turn the screen off.
 class ListenerService : Service()
 {
+    companion object {
+        var isRunning = false
+    }
     // Create a connection between the two services.
     var rootservice: Messenger? = null
     val RootConnect = object : ServiceConnection
@@ -45,27 +48,29 @@ class ListenerService : Service()
             // Check that a messenger was actually received (in some of my testing it'd report connected, but the ScreenService wasn't actually running)
             if(rootservice!=null)
             {
-                        Globals.loading?.progress = 5
-                        Globals.loadingtext?.text = "Done!"
+                        Globals.rootAvailable = true
+                        Globals.statusText?.text = "Running \u2713"
+                        Globals.onRootStatusChanged?.invoke()
                         Log.i("S22PresScreenServInit", "Done!")
             } else {
-                // If there's no messenger, empty the progress bar and log it.
-                Globals.loading?.progress = 0
-                Globals.loadingtext?.text = "Couldn't connect to ScreenService!"
+                Globals.rootAvailable = false
+                Globals.statusText?.text = "Not running \u2717"
+                Globals.onRootStatusChanged?.invoke()
                 Log.d("S22PresScreenServInit", "Failed!")
             }
         }
         override fun onServiceDisconnected(name: ComponentName?)
         {
             // When the service disconnects, log it.
+            Globals.rootAvailable = false
+            rootservice = null
+            Globals.onRootStatusChanged?.invoke()
             Log.i("S22PresScreenServInit", "Disconnected.")
         }
     }
     // This function starts the ScreenService before it is actually required and binds to it.
     fun startscreenservice(): Unit?
     {
-        Globals.loading?.progress = 4
-        Globals.loadingtext?.text = "Starting ScreenService..."
         Log.i("S22PresListServInit", "Let's get the service for the screen running...")
         // Identify ScreenService
         val intent = Intent(this, ScreenService::class.java)
@@ -76,6 +81,7 @@ class ListenerService : Service()
     }
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int
     {
+        isRunning = true
         Log.i("S22PresListServInit", "Hello!")
         val displaymanager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
         val display0 = displaymanager.displays[0]
@@ -95,10 +101,7 @@ class ListenerService : Service()
         // Identify and show presentation.
         val present = PresentationHandler(this, display1)
         present.show()
-        // When this service starts.
-        // Update Progress bar and log.
-        Globals.loading?.progress = 3
-        Globals.loadingtext?.text = "ListenerService Started!"
+        Globals.statusText?.text = "Running \u2713"
         // Bind to ScreenService.
         startscreenservice()
         // Create a variable to store requests for ScreenService.
@@ -133,7 +136,7 @@ class ListenerService : Service()
                     Handler(Looper.getMainLooper()).postDelayed(
                         {
                             Log.v("S22PresListServ", "Action requiring screen off detected")
-                            rootservice?.send(request)
+                            sendToRoot(request)
                         }, 500)
                 }
                 if(lid=="closed")
@@ -144,7 +147,7 @@ class ListenerService : Service()
                               Handler(Looper.getMainLooper()).postDelayed(
                         {
                             Log.v("S22PresListServ", "Action requiring main screen off detected")
-                            rootservice?.send(request)
+                            sendToRoot(request)
                         }, 100)
                     }
                 }
@@ -155,7 +158,7 @@ class ListenerService : Service()
                     Handler(Looper.getMainLooper()).postDelayed(
                         {
                             Log.v("S22PresListServ", "Action requiring screen on detected")
-                            rootservice?.send(request)
+                            sendToRoot(request)
                         }, 100)
                 }
             }
@@ -217,6 +220,24 @@ class ListenerService : Service()
     // Unused.
     override fun onBind(intent: Intent?): IBinder? {
       return null
+    }
+    private fun sendToRoot(msg: Message) {
+        val service = rootservice
+        if (service == null) {
+            Log.w("S22PresListServ", "Root service unavailable, skipping command ${msg.what}")
+            return
+        }
+        try {
+            service.send(msg)
+        } catch (e: android.os.RemoteException) {
+            Log.e("S22PresListServ", "Failed to send command ${msg.what} to root service", e)
+            Globals.rootAvailable = false
+            rootservice = null
+        }
+    }
+    override fun onDestroy() {
+        isRunning = false
+        super.onDestroy()
     }
 }
 // Notification listener. Whilst technically a service is it ran so long as it's declared in the manifest.

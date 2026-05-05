@@ -4,4 +4,6 @@
     <color name="white">#FFFFFFFF</color>
     <color name="grey">#6a6a6a</color>
     <color name="retroamber">#80c3ff</color>
+    <color name="permission_granted">#4CAF50</color>
+    <color name="permission_denied">#F44336</color>
 </resources>

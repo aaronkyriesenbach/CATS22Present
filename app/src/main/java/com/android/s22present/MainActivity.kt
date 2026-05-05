@@ -7,11 +7,14 @@ import android.hardware.display.DisplayManager
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
-import android.widget.ProgressBar
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -19,6 +22,23 @@ import org.lsposed.hiddenapibypass.HiddenApiBypass
 
 // Clue's in the name.
 class MainActivity : AppCompatActivity() {
+
+    private val requestRecordAudioLauncher: ActivityResultLauncher<String> =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            if (!granted) {
+                Toast.makeText(this, "Audio visualizer requires Record Audio permission", Toast.LENGTH_LONG).show()
+            }
+            refreshPermissionStatuses()
+        }
+
+    private val requestPhoneStateLauncher: ActivityResultLauncher<String> =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            if (!granted) {
+                Toast.makeText(this, "Call detection requires Phone State permission", Toast.LENGTH_LONG).show()
+            }
+            refreshPermissionStatuses()
+        }
+
     override fun onCreate(savedInstanceState: Bundle?)
     {
         // On start
@@ -35,22 +55,7 @@ class MainActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-        // Grab the loading bar and reset the progress
-        val progress : ProgressBar = findViewById(R.id.progressBar)
-        val progresstext : TextView = findViewById(R.id.textViewProgress)
-        progress.progress = 0
-        progresstext.text = "Starting..."
-        // Request runtime permissions for RECORD_AUDIO (visualizer) and READ_PHONE_STATE (call state)
-        val permissionsToRequest = mutableListOf<String>()
-        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
-            permissionsToRequest.add(android.Manifest.permission.RECORD_AUDIO)
-        }
-        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
-            permissionsToRequest.add(android.Manifest.permission.READ_PHONE_STATE)
-        }
-        if (permissionsToRequest.isNotEmpty()) {
-            requestPermissions(permissionsToRequest.toTypedArray(), 1)
-        }
+        val statusText: TextView = findViewById(R.id.textViewStatus)
         // Try to find display [1]
         val displaymanager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
         try {
@@ -59,29 +64,23 @@ class MainActivity : AppCompatActivity() {
             // If the display isn't found.
             if(display1 == null)
             {
-                // Notify the user.
-                progresstext.text = "No second display found!"
+                statusText.text = "Not running \u2717"
                 Log.w("S22PresMainInit", "No second display found. Run the commands!")
                 Toast.makeText(this, "No second display found. Run the commands!", 2500).show()
             }
             // If the display is found.
             else
             {
-                // Push displays and UI elements to globals (referencing globals without a second display causes a crash which is why it's done here)
-                Globals.loading = progress
-                Globals.loadingtext = progresstext
-                Globals.loading?.progress = 1
-                Globals.loadingtext?.text = "Got displays"
-                // Identify the service
-                val serviceintent = Intent(this, ListenerService::class.java)
-                // Kill existing service
-                Log.i("S22PresMainInit", "I'm killing any existing services to prevent duplicates")
-                stopService(serviceintent)
-                // Run service and update progress
-                Log.i("S22PresMainInit", "Asking Services to Run.")
-                startService(serviceintent)
-                Globals.loading?.progress = 2
-                Globals.loadingtext?.text = "Starting ListenerService"
+                Globals.statusText = statusText
+
+                if (ListenerService.isRunning) {
+                    statusText.text = "Running \u2713"
+                } else {
+                    val serviceintent = Intent(this, ListenerService::class.java)
+                    Log.i("S22PresMainInit", "Asking Services to Run.")
+                    startService(serviceintent)
+                    statusText.text = "Running \u2713"
+                }
                 val white =  ContextCompat.getColor(this, R.color.grey)
                 Log.i("S22PresMainInit", "White = $white")
             }
@@ -92,23 +91,68 @@ class MainActivity : AppCompatActivity() {
             // Notify user.
             Log.e("S22PresMainInit", "An Exception occurred trying to find the second screen. It is likely because the second screen isn't activated.")
             Toast.makeText(this, "No second display found. Run the commands!", 2500).show()
-            progress.progress = 0
-            progresstext.text = "No second display found!"
+            statusText.text = "Not running \u2717"
         }
-        // When user pushes the notification settings button.
-        findViewById<Button>(R.id.buttonNotify).setOnClickListener{
-            // Navigate the user to the settings menu for notifications permissions.
-            startActivity(Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS"))
+        findViewById<LinearLayout>(R.id.rowRecordAudio).setOnClickListener {
+            requestRuntimePermission(android.Manifest.permission.RECORD_AUDIO, requestRecordAudioLauncher)
+        }
+        findViewById<LinearLayout>(R.id.rowReadPhoneState).setOnClickListener {
+            requestRuntimePermission(android.Manifest.permission.READ_PHONE_STATE, requestPhoneStateLauncher)
+        }
+        findViewById<LinearLayout>(R.id.rowNotificationListener).setOnClickListener {
+            if (!isNotificationListenerEnabled()) {
+                startActivity(Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS"))
+            }
         }
         findViewById<Button>(R.id.buttonSetting).setOnClickListener{
             val intent = Intent(this, SettingsActivity::class.java)
             startActivity(intent)
         }
+        refreshPermissionStatuses()
+        Globals.onRootStatusChanged = { refreshPermissionStatuses() }
     }
+
     override fun onResume()
     {
         super.onResume()
+        refreshPermissionStatuses()
     }
+
+    private fun refreshPermissionStatuses() {
+        val grantedColor = ContextCompat.getColor(this, R.color.permission_granted)
+        val deniedColor = ContextCompat.getColor(this, R.color.permission_denied)
+
+        val recordAudioGranted = ContextCompat.checkSelfPermission(this, android.Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
+        val statusRecordAudio: TextView = findViewById(R.id.statusRecordAudio)
+        statusRecordAudio.text = if (recordAudioGranted) "\u2713" else "\u2717"
+        statusRecordAudio.setTextColor(if (recordAudioGranted) grantedColor else deniedColor)
+
+        val phoneStateGranted = ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED
+        val statusPhoneState: TextView = findViewById(R.id.statusReadPhoneState)
+        statusPhoneState.text = if (phoneStateGranted) "\u2713" else "\u2717"
+        statusPhoneState.setTextColor(if (phoneStateGranted) grantedColor else deniedColor)
+
+        val notificationListenerEnabled = isNotificationListenerEnabled()
+        val statusNotification: TextView = findViewById(R.id.statusNotificationListener)
+        statusNotification.text = if (notificationListenerEnabled) "\u2713" else "\u2717"
+        statusNotification.setTextColor(if (notificationListenerEnabled) grantedColor else deniedColor)
+
+        val statusRoot: TextView = findViewById(R.id.statusRootAccess)
+        statusRoot.text = if (Globals.rootAvailable) "\u2713" else "\u2717"
+        statusRoot.setTextColor(if (Globals.rootAvailable) grantedColor else deniedColor)
+    }
+
+    private fun isNotificationListenerEnabled(): Boolean {
+        return NotificationManagerCompat.getEnabledListenerPackages(this).contains(packageName)
+    }
+
+    private fun requestRuntimePermission(permission: String, launcher: ActivityResultLauncher<String>) {
+        if (ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED) {
+            return
+        }
+        launcher.launch(permission)
+    }
+
     override fun onPause()
     {
         super.onPause()
@@ -116,6 +160,6 @@ class MainActivity : AppCompatActivity() {
     override fun onStop()
     {
         super.onStop()
+        Globals.onRootStatusChanged = null
     }
 }
-
