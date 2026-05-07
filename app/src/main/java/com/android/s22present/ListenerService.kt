@@ -23,7 +23,6 @@ import android.service.notification.StatusBarNotification
 import android.telephony.TelephonyManager
 import android.util.Log
 import android.view.Display
-import android.view.WindowManager
 import androidx.core.view.isInvisible
 import com.topjohnwu.superuser.ipc.RootService
 import java.io.File
@@ -45,17 +44,6 @@ class ListenerService : Service()
         Log.v("S22PresListServ", "Wake timeout, putting device to sleep")
         sendToRoot(Message.obtain(null, ScreenService.CMD_SECONDARY_OFF, 0, 0))
     }
-    private val overlayClockHandler = Handler(Looper.getMainLooper())
-    private val overlayClockRunnable = object : Runnable {
-        override fun run() {
-            Globals.sendOverlayBitmap()
-            overlayClockHandler.postDelayed(this, 30_000)
-        }
-    }
-    private fun startOverlayClockTimer() {
-        overlayClockHandler.removeCallbacks(overlayClockRunnable)
-        overlayClockHandler.postDelayed(overlayClockRunnable, 30_000)
-    }
     val RootConnect = object : ServiceConnection
     {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?)
@@ -65,15 +53,9 @@ class ListenerService : Service()
             if(rootservice!=null)
             {
                         Globals.rootAvailable = true
-                        Globals.rootMessenger = rootservice
                         Globals.statusText?.text = "Running \u2713"
                         Globals.onRootStatusChanged?.invoke()
                         Log.i("S22PresScreenServInit", "Done!")
-                        sendToRoot(Message.obtain(null, ScreenService.CMD_SHOW_OVERLAY, 0, 0))
-                        Handler(Looper.getMainLooper()).postDelayed({
-                            Globals.sendOverlayBitmap()
-                            startOverlayClockTimer()
-                        }, 500)
             } else {
                 Globals.rootAvailable = false
                 Globals.statusText?.text = "Not running \u2717"
@@ -84,7 +66,6 @@ class ListenerService : Service()
         override fun onServiceDisconnected(name: ComponentName?)
         {
             Globals.rootAvailable = false
-            Globals.rootMessenger = null
             rootservice = null
             Globals.onRootStatusChanged?.invoke()
             Log.i("S22PresScreenServInit", "Disconnected.")
@@ -105,10 +86,6 @@ class ListenerService : Service()
             wakeSessionActive = true
             wakeTimeoutHandler.removeCallbacks(wakeTimeoutRunnable)
             sendToRoot(Message.obtain(null, ScreenService.CMD_SECONDARY_WAKE, 0, 0))
-            sendToRoot(Message.obtain(null, ScreenService.CMD_SHOW_OVERLAY, 0, 0))
-            Handler(Looper.getMainLooper()).postDelayed({
-                Globals.sendOverlayBitmap()
-            }, 300)
             wakeTimeoutHandler.postDelayed(
                 wakeTimeoutRunnable, DISPLAY_WAKE_LATENCY_MS + Globals.wakeTimeoutMs
             )
@@ -135,11 +112,6 @@ class ListenerService : Service()
         {
             Log.w("S22PresListServInit", "Failed to load settings. Continuing with defaults.")
         }
-        Globals.overlayFont = when {
-            Globals.font == "1" || Globals.style == "2" -> resources.getFont(R.font.digital7)
-            Globals.font == "2" || Globals.style == "1" -> resources.getFont(R.font.dogica)
-            else -> null
-        }
         // Identify and show presentation.
         val present = PresentationHandler(this, display1)
         present.show()
@@ -160,21 +132,15 @@ class ListenerService : Service()
                     lid = "open"
                     wakeSessionActive = false
                     wakeTimeoutHandler.removeCallbacks(wakeTimeoutRunnable)
-                    sendToRoot(Message.obtain(null, ScreenService.CMD_REMOVE_OVERLAY, 0, 0))
                 }
                 if (intent.action == "com.android.s22present.LIDCLOSED")
                 {
                     lid = "closed"
-                    sendToRoot(Message.obtain(null, ScreenService.CMD_SHOW_OVERLAY, 0, 0))
-                    Handler(Looper.getMainLooper()).postDelayed({
-                        Globals.sendOverlayBitmap()
-                    }, 300)
                 }
                 if(intent.action == Intent.ACTION_SCREEN_ON && !wakeSessionActive)
                 {
                       turnoff()
                 }
-                // If the System reports that the current call status has changed.
             }
             fun turnoff()
             {
@@ -324,7 +290,6 @@ class NotificationService : NotificationListenerService() {
                     }
                 }
                 Globals.titlefield.text = title
-                Globals.sendOverlayBitmap()
                 Intent().also { broadcast ->
                     broadcast.setAction("com.android.s22present.NOTIFICATION_RECEIVED")
                     sendBroadcast(broadcast)
@@ -333,7 +298,6 @@ class NotificationService : NotificationListenerService() {
             }
             if (text != Globals.contentfield.text) {
                 Globals.contentfield.text = text
-                Globals.sendOverlayBitmap()
             }
         }
     }
@@ -349,13 +313,11 @@ class NotificationService : NotificationListenerService() {
                     Log.v("S22PresNotifServ", "Switching to music")
                     Globals.titlefield.text = musicnotiftitle
                     Globals.contentfield.text = musicnotiftext
-                    Globals.sendOverlayBitmap()
                 }
                 else
                 {
                     Globals.titlefield.text = ""
                     Globals.contentfield.text = ""
-                    Globals.sendOverlayBitmap()
                     ObjectAnimator.ofFloat(Globals.datefield, "translationY", 0f).apply { duration = 500; start() }
                     ObjectAnimator.ofFloat(Globals.timefield, "translationY", 0f).apply { duration = 500; start() }
                     ObjectAnimator.ofFloat(Globals.titlefield, "translationY", 20f).apply { duration = 500; start() }
@@ -377,11 +339,3 @@ class NotificationService : NotificationListenerService() {
         super.onNotificationRemoved(sbn)
         }
     }
-
-
-
-
-
-
-
-
