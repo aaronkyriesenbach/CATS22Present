@@ -35,10 +35,13 @@ class ListenerService : Service()
 {
     companion object {
         var isRunning = false
+        private const val DISPLAY_WAKE_LATENCY_MS = 1000L
     }
     var rootservice: Messenger? = null
+    private var wakeSessionActive = false
     private val wakeTimeoutHandler = Handler(Looper.getMainLooper())
     private val wakeTimeoutRunnable = Runnable {
+        wakeSessionActive = false
         Log.v("S22PresListServ", "Wake timeout, putting device to sleep")
         sendToRoot(Message.obtain(null, 4, 0, 0))
     }
@@ -99,13 +102,16 @@ class ListenerService : Service()
     {
         if (intent?.action == WakeReceiver.ACTION_WAKE_DISPLAY) {
             Log.v("S22PresListServ", "Wake display requested")
+            wakeSessionActive = true
             wakeTimeoutHandler.removeCallbacks(wakeTimeoutRunnable)
             sendToRoot(Message.obtain(null, 3, 0, 0))
             sendToRoot(Message.obtain(null, 6, 0, 0))
             Handler(Looper.getMainLooper()).postDelayed({
                 Globals.sendOverlayBitmap()
             }, 300)
-            wakeTimeoutHandler.postDelayed(wakeTimeoutRunnable, Globals.wakeTimeoutMs)
+            wakeTimeoutHandler.postDelayed(
+                wakeTimeoutRunnable, DISPLAY_WAKE_LATENCY_MS + Globals.wakeTimeoutMs
+            )
             return START_NOT_STICKY
         }
 
@@ -152,8 +158,9 @@ class ListenerService : Service()
                 if (intent.action == "com.android.s22present.LIDOPEN")
                 {
                     lid = "open"
+                    wakeSessionActive = false
                     wakeTimeoutHandler.removeCallbacks(wakeTimeoutRunnable)
-                    wakeup()
+                    sendToRoot(Message.obtain(null, 7, 0, 0))
                 }
                 if (intent.action == "com.android.s22present.LIDCLOSED")
                 {
@@ -163,7 +170,7 @@ class ListenerService : Service()
                         Globals.sendOverlayBitmap()
                     }, 300)
                 }
-                if(intent.action == Intent.ACTION_SCREEN_ON)
+                if(intent.action == Intent.ACTION_SCREEN_ON && !wakeSessionActive)
                 {
                       turnoff()
                 }
@@ -191,16 +198,6 @@ class ListenerService : Service()
                             sendToRoot(request)
                         }, 100)
                     }
-                }
-            }
-            fun wakeup(){
-                if(display1.state== Display.STATE_OFF) {
-                     request = Message.obtain(null, 3, 0, 0)
-                    Handler(Looper.getMainLooper()).postDelayed(
-                        {
-                            Log.v("S22PresListServ", "Action requiring screen on detected")
-                            sendToRoot(request)
-                        }, 100)
                 }
             }
         }

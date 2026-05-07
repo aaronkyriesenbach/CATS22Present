@@ -74,7 +74,12 @@ done
 settings put global hidden_api_policy 1
 setprop ctl.restart vendor.hwcomposer-2-1
 SCRIPT
-chmod 755 /data/adb/modules/s22-display/service.sh'
+chmod 755 /data/adb/modules/s22-display/service.sh
+
+cat > /data/adb/modules/s22-display/sepolicy.rule << "SEPOLICY"
+allow magisk sysfs file { read write open getattr }
+allow magisk sysfs_graphics file { read write open getattr }
+SEPOLICY'
 ```
 
 **Step 2:** Reboot:
@@ -84,6 +89,8 @@ adb reboot
 ```
 
 Magisk loads the properties from `system.prop` during early boot. The `service.sh` script runs after boot completes to enable hidden API access and restart the hardware composer, which activates the secondary display. This will appear as a restart shortly after initial boot - this is normal.
+
+The `sepolicy.rule` file grants the app's root service (which runs in the `magisk` SELinux domain) permission to read and write sysfs backlight nodes (`/sys/class/leds/lcd-backlight/brightness` and `/sys/class/leds/lcd-backlight2/brightness`). This is required for per-display power control — the app suppresses the main display backlight via sysfs when waking only the secondary display. Without this policy, the sysfs writes will fail silently and the main display will flash during secondary-only wake.
 
 To verify the module is active after reboot:
 
