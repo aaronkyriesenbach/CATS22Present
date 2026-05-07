@@ -22,6 +22,15 @@ import java.io.FileOutputStream
 
 class ScreenService : RootService()
 {
+    companion object {
+        const val CMD_SECONDARY_OFF = 1
+        const val CMD_MAIN_OFF = 2
+        const val CMD_SECONDARY_WAKE = 3
+        const val CMD_SHOW_OVERLAY = 4
+        const val CMD_REMOVE_OVERLAY = 5
+        const val CMD_UPDATE_BITMAP = 6
+    }
+
     private lateinit var mMessenger: Messenger
 
     internal class IncomingHandler(
@@ -54,7 +63,7 @@ class ScreenService : RootService()
                 val powerModeOff = 0
                 val powerModeNormal = 2
                 when (msg.what) {
-                    3 -> {
+                    CMD_SECONDARY_WAKE -> {
                         // Both displays share DisplayGroup 0, so KEYCODE_WAKEUP wakes both.
                         // Suppress main by racing sysfs backlight=0 against the wake event,
                         // then power off the main display controller after wake completes.
@@ -82,23 +91,21 @@ class ScreenService : RootService()
                         }, 1000)
                         Log.v("S22PresScreenServ", "Secondary display wake")
                     }
-                    4 -> {
+                    CMD_SECONDARY_OFF -> {
                         setDisplayPowerMode.invoke(null, Globals.token as IBinder?, powerModeOff)
-                        Log.v("S22PresScreenServ", "Secondary display sleep")
+                        Log.v("S22PresScreenServ", "Secondary display off")
                     }
-                    2 -> {
+                    CMD_MAIN_OFF -> {
                         setDisplayPowerMode.invoke(null, Globals.token1 as IBinder?, powerModeOff)
+                        Log.v("S22PresScreenServ", "Main display off")
                     }
-                    1 -> {
-                        setDisplayPowerMode.invoke(null, Globals.token as IBinder?, powerModeOff)
-                    }
-                    6 -> {
+                    CMD_SHOW_OVERLAY -> {
                         showKeyguardOverlay()
                     }
-                    7 -> {
+                    CMD_REMOVE_OVERLAY -> {
                         removeKeyguardOverlay()
                     }
-                    9 -> {
+                    CMD_UPDATE_BITMAP -> {
                         val bytes = msg.data?.getByteArray("bitmap")
                         if (bytes != null) {
                             updateOverlayBitmap(bytes)

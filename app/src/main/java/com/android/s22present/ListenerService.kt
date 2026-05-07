@@ -43,7 +43,7 @@ class ListenerService : Service()
     private val wakeTimeoutRunnable = Runnable {
         wakeSessionActive = false
         Log.v("S22PresListServ", "Wake timeout, putting device to sleep")
-        sendToRoot(Message.obtain(null, 4, 0, 0))
+        sendToRoot(Message.obtain(null, ScreenService.CMD_SECONDARY_OFF, 0, 0))
     }
     private val overlayClockHandler = Handler(Looper.getMainLooper())
     private val overlayClockRunnable = object : Runnable {
@@ -69,7 +69,7 @@ class ListenerService : Service()
                         Globals.statusText?.text = "Running \u2713"
                         Globals.onRootStatusChanged?.invoke()
                         Log.i("S22PresScreenServInit", "Done!")
-                        sendToRoot(Message.obtain(null, 6, 0, 0))
+                        sendToRoot(Message.obtain(null, ScreenService.CMD_SHOW_OVERLAY, 0, 0))
                         Handler(Looper.getMainLooper()).postDelayed({
                             Globals.sendOverlayBitmap()
                             startOverlayClockTimer()
@@ -104,8 +104,8 @@ class ListenerService : Service()
             Log.v("S22PresListServ", "Wake display requested")
             wakeSessionActive = true
             wakeTimeoutHandler.removeCallbacks(wakeTimeoutRunnable)
-            sendToRoot(Message.obtain(null, 3, 0, 0))
-            sendToRoot(Message.obtain(null, 6, 0, 0))
+            sendToRoot(Message.obtain(null, ScreenService.CMD_SECONDARY_WAKE, 0, 0))
+            sendToRoot(Message.obtain(null, ScreenService.CMD_SHOW_OVERLAY, 0, 0))
             Handler(Looper.getMainLooper()).postDelayed({
                 Globals.sendOverlayBitmap()
             }, 300)
@@ -160,12 +160,12 @@ class ListenerService : Service()
                     lid = "open"
                     wakeSessionActive = false
                     wakeTimeoutHandler.removeCallbacks(wakeTimeoutRunnable)
-                    sendToRoot(Message.obtain(null, 7, 0, 0))
+                    sendToRoot(Message.obtain(null, ScreenService.CMD_REMOVE_OVERLAY, 0, 0))
                 }
                 if (intent.action == "com.android.s22present.LIDCLOSED")
                 {
                     lid = "closed"
-                    sendToRoot(Message.obtain(null, 6, 0, 0))
+                    sendToRoot(Message.obtain(null, ScreenService.CMD_SHOW_OVERLAY, 0, 0))
                     Handler(Looper.getMainLooper()).postDelayed({
                         Globals.sendOverlayBitmap()
                     }, 300)
@@ -180,7 +180,7 @@ class ListenerService : Service()
             {
                 if(lid=="open")
                 {
-                    request = Message.obtain(null, 1, 0, 0)
+                    request = Message.obtain(null, ScreenService.CMD_SECONDARY_OFF, 0, 0)
                     Handler(Looper.getMainLooper()).postDelayed(
                         {
                             Log.v("S22PresListServ", "Action requiring screen off detected")
@@ -191,7 +191,7 @@ class ListenerService : Service()
                 {
                      if(display1.state== Display.STATE_ON)
                     {
-                              request = Message.obtain(null, 2, 0, 0)
+                              request = Message.obtain(null, ScreenService.CMD_MAIN_OFF, 0, 0)
                               Handler(Looper.getMainLooper()).postDelayed(
                         {
                             Log.v("S22PresListServ", "Action requiring main screen off detected")

@@ -64,7 +64,7 @@ class Globals
                 val bytes = stream.toByteArray()
                 bitmap.recycle()
 
-                val msg = Message.obtain(null, 9, 0, 0)
+                val msg = Message.obtain(null, ScreenService.CMD_UPDATE_BITMAP, 0, 0)
                 msg.data = Bundle().apply {
                     putByteArray("bitmap", bytes)
                 }
