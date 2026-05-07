@@ -146,3 +146,7 @@ adb reboot
 - LineageOS 20 (Android 13) or compatible aftermarket ROM
 - Root access (Magisk recommended)
 - Notification listener permission (granted via the in-app button)
+
+## Documentation
+
+- [Dynamic Display Approaches](docs/DYNAMIC_DISPLAY_APPROACHES.md) — research and approaches for showing dynamic content on the secondary display while locked

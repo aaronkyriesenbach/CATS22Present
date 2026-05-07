@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="module_description">Disables keyguard on secondary display for S22Present</string>
+</resources>

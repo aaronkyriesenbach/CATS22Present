@@ -31,14 +31,8 @@ class PresentationHandler(context: Context, display: Display?): Presentation(con
 {
     override fun onCreate(savedInstanceState: Bundle?)
     {
-        // When started
         Log.i("S22PresHandlerInit", "Presentation start triggered")
-        Display.FLAG_PRESENTATION
-        Display.FLAG_SECURE
-        WindowManager.LayoutParams.FLAG_SECURE
-        WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
         super.onCreate(savedInstanceState)
-        // Grab the content variable and display whatever it says should be displayed.
         setContentView(R.layout.presentation)
         // Get todays date and the "local" format (although im in the UK and this displays the month first!)
         val today = LocalDateTime.now()
