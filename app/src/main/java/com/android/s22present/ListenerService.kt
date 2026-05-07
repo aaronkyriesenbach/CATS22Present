@@ -36,27 +36,41 @@ class ListenerService : Service()
     companion object {
         var isRunning = false
     }
-    // Create a connection between the two services.
     var rootservice: Messenger? = null
     private val wakeTimeoutHandler = Handler(Looper.getMainLooper())
     private val wakeTimeoutRunnable = Runnable {
         Log.v("S22PresListServ", "Wake timeout, putting device to sleep")
         sendToRoot(Message.obtain(null, 4, 0, 0))
     }
+    private val overlayClockHandler = Handler(Looper.getMainLooper())
+    private val overlayClockRunnable = object : Runnable {
+        override fun run() {
+            Globals.sendOverlayBitmap()
+            overlayClockHandler.postDelayed(this, 30_000)
+        }
+    }
+    private fun startOverlayClockTimer() {
+        overlayClockHandler.removeCallbacks(overlayClockRunnable)
+        overlayClockHandler.postDelayed(overlayClockRunnable, 30_000)
+    }
     val RootConnect = object : ServiceConnection
     {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?)
         {
-            // When connected
             Log.i("S22PresScreenServInit", "Connecting...")
             rootservice = Messenger(service)
-            // Check that a messenger was actually received (in some of my testing it'd report connected, but the ScreenService wasn't actually running)
             if(rootservice!=null)
             {
                         Globals.rootAvailable = true
+                        Globals.rootMessenger = rootservice
                         Globals.statusText?.text = "Running \u2713"
                         Globals.onRootStatusChanged?.invoke()
                         Log.i("S22PresScreenServInit", "Done!")
+                        sendToRoot(Message.obtain(null, 6, 0, 0))
+                        Handler(Looper.getMainLooper()).postDelayed({
+                            Globals.sendOverlayBitmap()
+                            startOverlayClockTimer()
+                        }, 500)
             } else {
                 Globals.rootAvailable = false
                 Globals.statusText?.text = "Not running \u2717"
@@ -66,8 +80,8 @@ class ListenerService : Service()
         }
         override fun onServiceDisconnected(name: ComponentName?)
         {
-            // When the service disconnects, log it.
             Globals.rootAvailable = false
+            Globals.rootMessenger = null
             rootservice = null
             Globals.onRootStatusChanged?.invoke()
             Log.i("S22PresScreenServInit", "Disconnected.")
@@ -77,10 +91,7 @@ class ListenerService : Service()
     fun startscreenservice(): Unit?
     {
         Log.i("S22PresListServInit", "Let's get the service for the screen running...")
-        // Identify ScreenService
         val intent = Intent(this, ScreenService::class.java)
-        RootService.stop(intent)
-        // Bind to it
         RootService.bind(intent, RootConnect)
         return null
     }
@@ -90,6 +101,10 @@ class ListenerService : Service()
             Log.v("S22PresListServ", "Wake display requested")
             wakeTimeoutHandler.removeCallbacks(wakeTimeoutRunnable)
             sendToRoot(Message.obtain(null, 3, 0, 0))
+            sendToRoot(Message.obtain(null, 6, 0, 0))
+            Handler(Looper.getMainLooper()).postDelayed({
+                Globals.sendOverlayBitmap()
+            }, 300)
             wakeTimeoutHandler.postDelayed(wakeTimeoutRunnable, Globals.wakeTimeoutMs)
             return START_NOT_STICKY
         }
@@ -113,6 +128,11 @@ class ListenerService : Service()
         catch (e: Exception)
         {
             Log.w("S22PresListServInit", "Failed to load settings. Continuing with defaults.")
+        }
+        Globals.overlayFont = when {
+            Globals.font == "1" || Globals.style == "2" -> resources.getFont(R.font.digital7)
+            Globals.font == "2" || Globals.style == "1" -> resources.getFont(R.font.dogica)
+            else -> null
         }
         // Identify and show presentation.
         val present = PresentationHandler(this, display1)
@@ -138,6 +158,10 @@ class ListenerService : Service()
                 if (intent.action == "com.android.s22present.LIDCLOSED")
                 {
                     lid = "closed"
+                    sendToRoot(Message.obtain(null, 6, 0, 0))
+                    Handler(Looper.getMainLooper()).postDelayed({
+                        Globals.sendOverlayBitmap()
+                    }, 300)
                 }
                 if(intent.action == Intent.ACTION_SCREEN_ON)
                 {
@@ -303,6 +327,7 @@ class NotificationService : NotificationListenerService() {
                     }
                 }
                 Globals.titlefield.text = title
+                Globals.sendOverlayBitmap()
                 Intent().also { broadcast ->
                     broadcast.setAction("com.android.s22present.NOTIFICATION_RECEIVED")
                     sendBroadcast(broadcast)
@@ -311,6 +336,7 @@ class NotificationService : NotificationListenerService() {
             }
             if (text != Globals.contentfield.text) {
                 Globals.contentfield.text = text
+                Globals.sendOverlayBitmap()
             }
         }
     }
@@ -326,11 +352,13 @@ class NotificationService : NotificationListenerService() {
                     Log.v("S22PresNotifServ", "Switching to music")
                     Globals.titlefield.text = musicnotiftitle
                     Globals.contentfield.text = musicnotiftext
+                    Globals.sendOverlayBitmap()
                 }
                 else
                 {
                     Globals.titlefield.text = ""
                     Globals.contentfield.text = ""
+                    Globals.sendOverlayBitmap()
                     ObjectAnimator.ofFloat(Globals.datefield, "translationY", 0f).apply { duration = 500; start() }
                     ObjectAnimator.ofFloat(Globals.timefield, "translationY", 0f).apply { duration = 500; start() }
                     ObjectAnimator.ofFloat(Globals.titlefield, "translationY", 20f).apply { duration = 500; start() }
