@@ -61,16 +61,22 @@ class ScreenService : RootService()
                         writeBacklight(MAIN_BACKLIGHT, 0)
                         Runtime.getRuntime().exec("input keyevent KEYCODE_WAKEUP")
                         writeBacklight(MAIN_BACKLIGHT, 0)
+                        setDisplayPowerMode.invoke(
+                            null, Globals.token as IBinder?, powerModeNormal
+                        )
                         postDelayed({
                             writeBacklight(MAIN_BACKLIGHT, 0)
                             try {
                                 setDisplayPowerMode.invoke(
                                     null, Globals.token1 as IBinder?, powerModeOff
                                 )
+                                setDisplayPowerMode.invoke(
+                                    null, Globals.token as IBinder?, powerModeNormal
+                                )
                             } catch (e: ReflectiveOperationException) {
                                 Log.e(
                                     "S22PresScreenServ",
-                                    "Failed to power off main after wake", e
+                                    "Failed to set display power after wake", e
                                 )
                             }
                         }, 1000)
