@@ -81,8 +81,6 @@ class MainActivity : AppCompatActivity() {
                     startService(serviceintent)
                     statusText.text = "Running \u2713"
                 }
-                val white =  ContextCompat.getColor(this, R.color.grey)
-                Log.i("S22PresMainInit", "White = $white")
             }
         }
         // If a crash occurs whilst looking for a second display.
@@ -153,10 +151,6 @@ class MainActivity : AppCompatActivity() {
         launcher.launch(permission)
     }
 
-    override fun onPause()
-    {
-        super.onPause()
-    }
     override fun onStop()
     {
         super.onStop()

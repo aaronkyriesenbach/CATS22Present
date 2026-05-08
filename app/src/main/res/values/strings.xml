@@ -1,8 +1,6 @@
 <resources>
     <string name="app_name">S22Present</string>
     <string name="module_description">Xposed hooks for S22Present — disables keyguard on secondary display, system-wide key debounce</string>
-    <string name="Current_Presentation">null</string>
-    <string name="Date">null</string>
     <string-array name="Styles">
         <item>Default</item>
         <item>2000s MP3 Player (Blue)</item>

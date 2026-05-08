@@ -5,13 +5,9 @@ import android.app.Presentation
 import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Color
-import android.media.AudioTrack
-import android.media.MediaPlayer
-import android.media.MediaRecorder
 import android.os.Bundle
 import android.util.Log
 import android.view.Display
-import android.view.SurfaceView
 import android.view.View
 import android.view.Window
 import android.view.WindowManager
@@ -19,9 +15,7 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.core.view.isInvisible
 import com.chibde.visualizer.BarVisualizer
-import com.chibde.visualizer.LineVisualizer
 import com.chibde.visualizer.SquareBarVisualizer
-import com.topjohnwu.superuser.Shell
 import java.io.File
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter

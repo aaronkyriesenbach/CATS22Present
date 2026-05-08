@@ -101,50 +101,6 @@
     </issue>
 
     <issue
-        id="UnusedResources"
-        message="The resource `R.string.Current_Presentation` appears to be unused"
-        errorLine1="    &lt;string name=&quot;Current_Presentation&quot;>null&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="3"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.Date` appears to be unused"
-        errorLine1="    &lt;string name=&quot;Date&quot;>null&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="4"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UseTomlInstead"
-        message="Use version catalog instead"
-        errorLine1="    implementation(&quot;androidx.lifecycle:lifecycle-livedata-ktx:2.8.1&quot;)"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="build.gradle.kts"
-            line="54"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="UseTomlInstead"
-        message="Use version catalog instead"
-        errorLine1="    implementation(&quot;androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.1&quot;)"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="build.gradle.kts"
-            line="55"
-            column="21"/>
-    </issue>
-
-    <issue
         id="UseTomlInstead"
         message="Use version catalog instead"
         errorLine1="    implementation(&quot;com.github.topjohnwu.libsu:core:${libsuVersion}&quot;)"

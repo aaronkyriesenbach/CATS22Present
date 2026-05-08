@@ -248,7 +248,6 @@ class ListenerService : Service()
 }
 // Notification listener. Whilst technically a service is it ran so long as it's declared in the manifest.
 class NotificationService : NotificationListenerService() {
-    var currentnotifs : String? = null
     var musicactive=false
     var musicnotiftitle:String = ""
     var musicnotiftext:String = ""
@@ -262,7 +261,6 @@ class NotificationService : NotificationListenerService() {
     // When Notification created.
     override fun onNotificationPosted(sbn: StatusBarNotification) {
         // Store information in variables
-        // currentnotifs.plus(sbn.id.toString())
         val packageName = sbn.packageName
         val extras = sbn.notification.extras
         val title = extras.getString("android.title")

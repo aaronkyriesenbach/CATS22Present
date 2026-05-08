@@ -42,8 +42,6 @@ android {
     }
 }
 dependencies {
-    implementation(libs.androidx.media3.common)
-    implementation(libs.androidx.runtime.saved.instance.state)
     val libsuVersion = "5.2.2"
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
@@ -53,8 +51,6 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.8.1")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.1")
     implementation("com.github.topjohnwu.libsu:core:${libsuVersion}")
     implementation ("com.github.topjohnwu.libsu:service:${libsuVersion}")
     implementation ("org.lsposed.hiddenapibypass:hiddenapibypass:2.0")
