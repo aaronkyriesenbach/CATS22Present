@@ -66,7 +66,7 @@ class MainActivity : AppCompatActivity() {
             {
                 statusText.text = "Not running \u2717"
                 Log.w("S22PresMainInit", "No second display found. Run the commands!")
-                Toast.makeText(this, "No second display found. Run the commands!", 2500).show()
+                Toast.makeText(this, "No second display found. Run the commands!", Toast.LENGTH_LONG).show()
             }
             // If the display is found.
             else
@@ -88,7 +88,7 @@ class MainActivity : AppCompatActivity() {
         {
             // Notify user.
             Log.e("S22PresMainInit", "An Exception occurred trying to find the second screen. It is likely because the second screen isn't activated.")
-            Toast.makeText(this, "No second display found. Run the commands!", 2500).show()
+            Toast.makeText(this, "No second display found. Run the commands!", Toast.LENGTH_LONG).show()
             statusText.text = "Not running \u2717"
         }
         findViewById<LinearLayout>(R.id.rowRecordAudio).setOnClickListener {

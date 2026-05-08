@@ -33,7 +33,7 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
     buildFeatures{
-        viewBinding = true
+        viewBinding = false
     }
     packaging {
         resources {
@@ -42,7 +42,6 @@ android {
     }
 }
 dependencies {
-    val libsuVersion = "5.2.2"
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
@@ -51,10 +50,10 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-    implementation("com.github.topjohnwu.libsu:core:${libsuVersion}")
-    implementation ("com.github.topjohnwu.libsu:service:${libsuVersion}")
-    implementation ("org.lsposed.hiddenapibypass:hiddenapibypass:2.0")
-    implementation("io.github.gautamchibde:audiovisualizer:2.2.5")
-    compileOnly("io.github.libxposed:api:101.0.1")
+    implementation(libs.libsu.core)
+    implementation(libs.libsu.service)
+    implementation(libs.hiddenapibypass)
+    implementation(libs.audiovisualizer)
+    compileOnly(libs.libxposed.api)
 }
 

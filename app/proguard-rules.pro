@@ -19,3 +19,13 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+# SurfaceControl hidden API reflection (display power, physical display tokens)
+-keep class android.view.SurfaceControl { *; }
+
+# libsu RootService IPC
+-keep class com.topjohnwu.superuser.** { *; }
+-keep class * extends com.topjohnwu.superuser.ipc.RootService { *; }
+
+# libxposed API
+-keep class io.github.libxposed.** { *; }

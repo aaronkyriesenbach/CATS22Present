@@ -6,4 +6,13 @@
     <color name="retroamber">#80c3ff</color>
     <color name="permission_granted">#4CAF50</color>
     <color name="permission_denied">#F44336</color>
+
+    <!-- Presentation style 1 (pixel/retro) -->
+    <color name="style1_text">#052745</color>
+    <color name="style1_background">#093c6c</color>
+    <color name="style1_visualizer">#10508c</color>
+
+    <!-- Presentation style 2 (digital/red) -->
+    <color name="style2_text">#cc0000</color>
+    <color name="style2_visualizer">#790000</color>
 </resources>

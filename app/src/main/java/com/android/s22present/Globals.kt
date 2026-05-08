@@ -15,9 +15,42 @@ class Globals
     @SuppressLint("StaticFieldLeak")
     companion object
     {
-        val sfids = SurfaceControl::class.java.getMethod("getPhysicalDisplayIds").invoke(null) as LongArray
-        val token = SurfaceControl::class.java.getMethod("getPhysicalDisplayToken", Long::class.java).invoke(null, sfids[1])
-        val token1 = SurfaceControl::class.java.getMethod("getPhysicalDisplayToken", Long::class.java).invoke(null, sfids[0])
+        val sfids: LongArray by lazy {
+            try {
+                SurfaceControl::class.java.getMethod("getPhysicalDisplayIds").invoke(null) as LongArray
+            } catch (e: ReflectiveOperationException) {
+                Log.e("S22PresGlobals", "Failed to get physical display IDs", e)
+                longArrayOf()
+            }
+        }
+        val token: Any? by lazy {
+            try {
+                if (sfids.size > 1) {
+                    SurfaceControl::class.java.getMethod("getPhysicalDisplayToken", Long::class.java)
+                        .invoke(null, sfids[1])
+                } else {
+                    Log.w("S22PresGlobals", "No secondary display ID available for token")
+                    null
+                }
+            } catch (e: ReflectiveOperationException) {
+                Log.e("S22PresGlobals", "Failed to get secondary display token", e)
+                null
+            }
+        }
+        val token1: Any? by lazy {
+            try {
+                if (sfids.isNotEmpty()) {
+                    SurfaceControl::class.java.getMethod("getPhysicalDisplayToken", Long::class.java)
+                        .invoke(null, sfids[0])
+                } else {
+                    Log.w("S22PresGlobals", "No primary display ID available for token1")
+                    null
+                }
+            } catch (e: ReflectiveOperationException) {
+                Log.e("S22PresGlobals", "Failed to get primary display token", e)
+                null
+            }
+        }
         lateinit var datefield : TextView
         lateinit var titlefield : TextView
         var statusText: TextView? = null
@@ -26,8 +59,8 @@ class Globals
         var visual : Int = 0
         lateinit var visualbar: BarVisualizer
         lateinit var visualsquare: SquareBarVisualizer
-        var style = "0"
-        var font = "0"
+        var style = 0
+        var font = 0
         var wakeTimeoutMs = 3000L
         var rootAvailable = false
         var onRootStatusChanged: (() -> Unit)? = null

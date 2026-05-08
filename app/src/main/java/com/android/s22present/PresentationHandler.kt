@@ -61,35 +61,40 @@ class PresentationHandler(context: Context, display: Display?): Presentation(con
         val visualSquare: SquareBarVisualizer = findViewById(R.id.visualizerSquare)
         val digifont = resources.getFont(R.font.digital7)
         val pixelfont = resources.getFont(R.font.dogica)
-        Globals.visualbar = findViewById(R.id.visualizerBar)
-        Globals.visualsquare = findViewById(R.id.visualizerSquare)
+        Globals.visualbar = visual
+        Globals.visualsquare = visualSquare
+
+        val clockView = Globals.timefield
+        val dateView = Globals.datefield
+        val titleView = Globals.titlefield
+        val contentView = Globals.contentfield
 
         fun digifontset()
         {
-            findViewById<TextView>(R.id.textClock).typeface=digifont
-            findViewById<TextView>(R.id.textView2).typeface=digifont
-            findViewById<TextView>(R.id.textViewTitle).typeface=digifont
-            findViewById<TextView>(R.id.textViewContent).typeface=digifont
-            findViewById<TextView>(R.id.textClock).textSize=17f
-            findViewById<TextView>(R.id.textView2).textSize=17f
-            findViewById<TextView>(R.id.textViewTitle).textSize=14f
-            findViewById<TextView>(R.id.textViewContent).textSize=10f
+            clockView.typeface = digifont
+            dateView.typeface = digifont
+            titleView.typeface = digifont
+            contentView.typeface = digifont
+            clockView.textSize = 17f
+            dateView.textSize = 17f
+            titleView.textSize = 14f
+            contentView.textSize = 10f
         }
         fun pixelfontset()
         {
-            findViewById<TextView>(R.id.textClock).typeface=pixelfont
-            findViewById<TextView>(R.id.textView2).typeface=pixelfont
-            findViewById<TextView>(R.id.textViewTitle).typeface=pixelfont
-            findViewById<TextView>(R.id.textViewContent).typeface=pixelfont
-            findViewById<TextView>(R.id.textViewContent).letterSpacing=-0.05f
-            findViewById<TextView>(R.id.textViewContent).setLineSpacing(3f, 1f)
-            findViewById<TextView>(R.id.textClock).letterSpacing=-0.05f
-            findViewById<TextView>(R.id.textView2).letterSpacing=-0.05f
-            findViewById<TextView>(R.id.textViewTitle).letterSpacing=-0.05f
-            findViewById<TextView>(R.id.textClock).textSize=12f
-            findViewById<TextView>(R.id.textView2).textSize=12f
-            findViewById<TextView>(R.id.textViewTitle).textSize=10f
-            findViewById<TextView>(R.id.textViewContent).textSize=9f
+            clockView.typeface = pixelfont
+            dateView.typeface = pixelfont
+            titleView.typeface = pixelfont
+            contentView.typeface = pixelfont
+            contentView.letterSpacing = -0.05f
+            contentView.setLineSpacing(3f, 1f)
+            clockView.letterSpacing = -0.05f
+            dateView.letterSpacing = -0.05f
+            titleView.letterSpacing = -0.05f
+            clockView.textSize = 12f
+            dateView.textSize = 12f
+            titleView.textSize = 10f
+            contentView.textSize = 9f
         }
         fun squarevis()
         {
@@ -123,38 +128,40 @@ class PresentationHandler(context: Context, display: Display?): Presentation(con
                 Log.e("S22PresHandlerInit", "SecurityException initializing visualizer", e)
             }
         }
-        if(Globals.style=="1")
+        if(Globals.style == 1)
         {
             pixelfontset()
             squarevis()
-            findViewById<TextView>(R.id.textClock).setTextColor(Color.parseColor("#052745"))
-            findViewById<TextView>(R.id.textView2).setTextColor(Color.parseColor("#052745"))
-            findViewById<TextView>(R.id.textViewTitle).setTextColor(Color.parseColor("#052745"))
-            findViewById<TextView>(R.id.textViewContent).setTextColor(Color.parseColor("#052745"))
-            findViewById<View>(R.id.view).setBackgroundColor(Color.parseColor("#093c6c"))
-            visualSquare.setColor(Color.parseColor("#10508c"))
+            val textColor = ContextCompat.getColor(context, R.color.style1_text)
+            clockView.setTextColor(textColor)
+            dateView.setTextColor(textColor)
+            titleView.setTextColor(textColor)
+            contentView.setTextColor(textColor)
+            findViewById<View>(R.id.view).setBackgroundColor(ContextCompat.getColor(context, R.color.style1_background))
+            visualSquare.setColor(ContextCompat.getColor(context, R.color.style1_visualizer))
         }
 
-        if(Globals.style=="2")
+        if(Globals.style == 2)
         {
             digifontset()
             squarevis()
-            findViewById<TextView>(R.id.textClock).setTextColor(Color.parseColor("#cc0000"))
-            findViewById<TextView>(R.id.textView2).setTextColor(Color.parseColor("#cc0000"))
-            findViewById<TextView>(R.id.textViewTitle).setTextColor(Color.parseColor("#cc0000"))
-            findViewById<TextView>(R.id.textViewContent).setTextColor(Color.parseColor("#cc0000"))
-            visualSquare.setColor(Color.parseColor("#790000"))
+            val textColor = ContextCompat.getColor(context, R.color.style2_text)
+            clockView.setTextColor(textColor)
+            dateView.setTextColor(textColor)
+            titleView.setTextColor(textColor)
+            contentView.setTextColor(textColor)
+            visualSquare.setColor(ContextCompat.getColor(context, R.color.style2_visualizer))
         }
-        if(Globals.style=="0")
+        if(Globals.style == 0)
         {
             barvis()
-            visual.setColor(255255255)
+            visual.setColor(Color.WHITE)
         }
-        if(Globals.font=="1")
+        if(Globals.font == 1)
         {
             digifontset()
         }
-        if(Globals.font=="2")
+        if(Globals.font == 2)
         {
             pixelfontset()
         }

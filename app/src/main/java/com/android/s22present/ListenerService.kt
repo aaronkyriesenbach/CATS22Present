@@ -37,6 +37,7 @@ class ListenerService : Service()
     }
     var rootservice: Messenger? = null
     private var wakeSessionActive = false
+    private val mainHandler = Handler(Looper.getMainLooper())
     private val wakeTimeoutHandler = Handler(Looper.getMainLooper())
     private val wakeTimeoutRunnable = Runnable {
         wakeSessionActive = false
@@ -71,12 +72,11 @@ class ListenerService : Service()
         }
     }
     // This function starts the ScreenService before it is actually required and binds to it.
-    fun startscreenservice(): Unit?
+    fun startscreenservice()
     {
         Log.i("S22PresListServInit", "Let's get the service for the screen running...")
         val intent = Intent(this, ScreenService::class.java)
         RootService.bind(intent, RootConnect)
-        return null
     }
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int
     {
@@ -105,8 +105,8 @@ class ListenerService : Service()
         Globals.migrateSettingsIfNeeded(this)
         try {
             val prefs = getSharedPreferences(Globals.PREFS_APP, Context.MODE_PRIVATE)
-            Globals.style = prefs.getInt(Globals.KEY_STYLE, Globals.DEFAULT_STYLE).toString()
-            Globals.font = prefs.getInt(Globals.KEY_FONT, Globals.DEFAULT_FONT).toString()
+            Globals.style = prefs.getInt(Globals.KEY_STYLE, Globals.DEFAULT_STYLE)
+            Globals.font = prefs.getInt(Globals.KEY_FONT, Globals.DEFAULT_FONT)
             Globals.wakeTimeoutMs = Globals.wakeTimeoutMsForIndex(
                 prefs.getInt(Globals.KEY_WAKE_TIMEOUT_INDEX, Globals.DEFAULT_WAKE_TIMEOUT_INDEX))
         }
@@ -120,8 +120,6 @@ class ListenerService : Service()
         Globals.statusText?.text = "Running \u2713"
         // Bind to ScreenService.
         startscreenservice()
-        // Create a variable to store requests for ScreenService.
-        var request: Message
         // Create a BroadcastReceiver.
         val screenStateReciever = object : BroadcastReceiver()
         {
@@ -148,8 +146,8 @@ class ListenerService : Service()
             {
                 if(lid=="open")
                 {
-                    request = Message.obtain(null, ScreenService.CMD_SECONDARY_OFF, 0, 0)
-                    Handler(Looper.getMainLooper()).postDelayed(
+                    val request = Message.obtain(null, ScreenService.CMD_SECONDARY_OFF, 0, 0)
+                    mainHandler.postDelayed(
                         {
                             Log.v("S22PresListServ", "Action requiring screen off detected")
                             sendToRoot(request)
@@ -159,8 +157,8 @@ class ListenerService : Service()
                 {
                      if(display1.state== Display.STATE_ON)
                     {
-                              request = Message.obtain(null, ScreenService.CMD_MAIN_OFF, 0, 0)
-                              Handler(Looper.getMainLooper()).postDelayed(
+                              val request = Message.obtain(null, ScreenService.CMD_MAIN_OFF, 0, 0)
+                              mainHandler.postDelayed(
                         {
                             Log.v("S22PresListServ", "Action requiring main screen off detected")
                             sendToRoot(request)
@@ -179,7 +177,7 @@ class ListenerService : Service()
                 if (event.sensor.type == Sensor.TYPE_PROXIMITY) {
                     if (event.values[0] == 0f)
                     {
-                        Handler(Looper.getMainLooper()).postDelayed(
+                        mainHandler.postDelayed(
                             {
                                 if (display0!!.state == Display.STATE_OFF)
                                 {
@@ -191,7 +189,7 @@ class ListenerService : Service()
                     }
                     else
                     {
-                        Handler(Looper.getMainLooper()).postDelayed(
+                        mainHandler.postDelayed(
                             {
                                 if (display0!!.state == Display.STATE_ON)
                                 {
@@ -248,6 +246,14 @@ class ListenerService : Service()
 }
 // Notification listener. Whilst technically a service is it ran so long as it's declared in the manifest.
 class NotificationService : NotificationListenerService() {
+    companion object {
+        private val MUSIC_APP_PACKAGES = setOf(
+            "it.vfsfitvnm.vimusic",
+            "com.google.android.apps.youtube.music",
+            "com.spotify.music",
+            "org.fossify.musicplayer"
+        )
+    }
     var musicactive=false
     var musicnotiftitle:String = ""
     var musicnotiftext:String = ""
@@ -265,7 +271,7 @@ class NotificationService : NotificationListenerService() {
         val extras = sbn.notification.extras
         val title = extras.getString("android.title")
         val text = extras.getString("android.text")
-        if(title != null.toString() || text != null.toString()) {
+        if(title != null || text != null) {
             if (Globals.titlefield.text == "") {
                 ObjectAnimator.ofFloat(Globals.datefield, "translationY", -20f)
                     .apply { duration = 500; start() }
@@ -278,7 +284,7 @@ class NotificationService : NotificationListenerService() {
             }
             if (title != Globals.titlefield.text) {
                 Log.v("S22PresNotifServ", "Ping!")
-                if (packageName == "it.vfsfitvnm.vimusic" || packageName == "com.google.android.apps.youtube.music" || packageName == "com.spotify.music" || packageName == "org.fossify.musicplayer") {
+                if (packageName in MUSIC_APP_PACKAGES) {
                     Log.v("S22PresNotifServ", "Music")
                     musicactive = true
                     musicnotiftitle = title ?: ""

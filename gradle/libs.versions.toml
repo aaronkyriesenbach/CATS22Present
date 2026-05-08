@@ -8,6 +8,10 @@ appcompat = "1.7.0"
 material = "1.12.0"
 activity = "1.9.0"
 constraintlayout = "2.1.4"
+libsu = "5.2.2"
+hiddenapibypass = "2.0"
+audiovisualizer = "2.2.5"
+libxposedApi = "101.0.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -18,6 +22,11 @@ androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
+libsu-core = { group = "com.github.topjohnwu.libsu", name = "core", version.ref = "libsu" }
+libsu-service = { group = "com.github.topjohnwu.libsu", name = "service", version.ref = "libsu" }
+hiddenapibypass = { group = "org.lsposed.hiddenapibypass", name = "hiddenapibypass", version.ref = "hiddenapibypass" }
+audiovisualizer = { group = "io.github.gautamchibde", name = "audiovisualizer", version.ref = "audiovisualizer" }
+libxposed-api = { group = "io.github.libxposed", name = "api", version.ref = "libxposedApi" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

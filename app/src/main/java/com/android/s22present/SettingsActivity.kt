@@ -129,7 +129,7 @@ class SettingsActivity : AppCompatActivity() {
             Log.i("S22PresListServ", "Restarting...")
             stopService(serviceintent)
             startService(serviceintent)
-            Toast.makeText(this, "Settings Saved.", 2000).show()
+            Toast.makeText(this, "Settings Saved.", Toast.LENGTH_SHORT).show()
         }
 
     }
