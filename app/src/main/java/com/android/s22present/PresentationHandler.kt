@@ -13,6 +13,7 @@ import android.util.Log
 import android.view.Display
 import android.view.SurfaceView
 import android.view.View
+import android.view.Window
 import android.view.WindowManager
 import android.widget.TextView
 import androidx.core.content.ContextCompat
@@ -29,11 +30,25 @@ import java.time.format.FormatStyle
 // Manages the Presentation and it's contents.
 class PresentationHandler(context: Context, display: Display?): Presentation(context,display)
 {
+    @Suppress("DEPRECATION") // FLAG_FULLSCREEN deprecated but no WindowInsetsController on Presentation (Dialog)
     override fun onCreate(savedInstanceState: Bundle?)
     {
         Log.i("S22PresHandlerInit", "Presentation start triggered")
         super.onCreate(savedInstanceState)
+        requestWindowFeature(Window.FEATURE_NO_TITLE)
         setContentView(R.layout.presentation)
+        window?.let { w ->
+            w.setLayout(
+                WindowManager.LayoutParams.MATCH_PARENT,
+                WindowManager.LayoutParams.MATCH_PARENT
+            )
+            w.addFlags(
+                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
+                WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
+                WindowManager.LayoutParams.FLAG_FULLSCREEN
+            )
+            w.setBackgroundDrawableResource(android.R.color.black)
+        }
         // Get todays date and the "local" format (although im in the UK and this displays the month first!)
         val today = LocalDateTime.now()
         val format = DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT)

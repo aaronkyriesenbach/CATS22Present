@@ -95,7 +95,13 @@ class ListenerService : Service()
         Log.i("S22PresListServInit", "Hello!")
         val displaymanager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
         val display0 = displaymanager.displays[0]
-        val display1 = displaymanager.displays[1]
+        val presentationDisplays = displaymanager.getDisplays(DisplayManager.DISPLAY_CATEGORY_PRESENTATION)
+        val display1 = presentationDisplays.firstOrNull() ?: displaymanager.displays.getOrNull(1)
+        if (display1 == null) {
+            Log.e("S22PresListServInit", "No secondary display found")
+            stopSelf()
+            return START_NOT_STICKY
+        }
         Globals.migrateSettingsIfNeeded(this)
         try {
             val prefs = getSharedPreferences(Globals.PREFS_APP, Context.MODE_PRIVATE)
