@@ -1,5 +1,6 @@
 package com.android.s22present.xposed;
 
+import android.util.Log;
 import android.view.Display;
 
 import java.lang.reflect.Method;
@@ -12,12 +13,8 @@ public class KeyguardDisplayHook extends XposedModule {
 
     private static final String TAG = "S22Present.XposedHook";
 
-    public KeyguardDisplayHook(XposedInterface base, XposedModuleInterface.ModuleLoadedParam param) {
-        super(base, param);
-    }
-
     @Override
-    public void onPackageLoaded(PackageLoadedParam param) {
+    public void onPackageLoaded(XposedModuleInterface.PackageLoadedParam param) {
         if (!"com.android.systemui".equals(param.getPackageName())) {
             return;
         }
@@ -29,22 +26,24 @@ public class KeyguardDisplayHook extends XposedModule {
                 param.getDefaultClassLoader()
             );
             Method showPresentation = kdmClass.getDeclaredMethod("showPresentation", Display.class);
-            hook(showPresentation, ShowPresentationHooker.class);
-            log("Hooked KeyguardDisplayManager.showPresentation");
+            hook(showPresentation).intercept(new ShowPresentationHooker());
+            log(Log.INFO, TAG, "Hooked KeyguardDisplayManager.showPresentation");
         } catch (Throwable t) {
-            log("Failed to hook KeyguardDisplayManager.showPresentation", t);
+            log(Log.ERROR, TAG, "Failed to hook KeyguardDisplayManager.showPresentation", t);
         }
     }
 
-    public static class ShowPresentationHooker implements XposedInterface.Hooker {
-        public static void before(XposedInterface.BeforeHookCallback callback) {
-            Object[] args = callback.getArgs();
-            if (args != null && args.length > 0 && args[0] instanceof Display) {
-                Display display = (Display) args[0];
+    private static class ShowPresentationHooker implements XposedInterface.Hooker {
+        @Override
+        public Object intercept(XposedInterface.Chain chain) throws Throwable {
+            Object arg = chain.getArg(0);
+            if (arg instanceof Display) {
+                Display display = (Display) arg;
                 if (display.getDisplayId() != Display.DEFAULT_DISPLAY) {
-                    callback.returnAndSkip(false);
+                    return false;
                 }
             }
+            return chain.proceed();
         }
     }
 }

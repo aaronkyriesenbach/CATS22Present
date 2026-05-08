@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">S22Present</string>
+    <string name="module_description">Xposed hooks for S22Present — disables keyguard on secondary display, system-wide key debounce</string>
     <string name="Current_Presentation">null</string>
     <string name="Date">null</string>
     <string-array name="Styles">
@@ -18,5 +19,14 @@
         <item>10 seconds</item>
         <item>15 seconds</item>
         <item>30 seconds</item>
+    </string-array>
+    <string-array name="DebounceValues">
+        <item>Off</item>
+        <item>50ms</item>
+        <item>75ms</item>
+        <item>100ms (default)</item>
+        <item>125ms</item>
+        <item>150ms</item>
+        <item>200ms</item>
     </string-array>
 </resources>

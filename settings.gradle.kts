@@ -22,5 +22,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "S22Present"
 include(":app")
-include(":xposed-module")
  

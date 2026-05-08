@@ -35,6 +35,11 @@ android {
     buildFeatures{
         viewBinding = true
     }
+    packaging {
+        resources {
+            merges += "META-INF/xposed/*"
+        }
+    }
 }
 dependencies {
     implementation(libs.androidx.media3.common)
@@ -54,5 +59,6 @@ dependencies {
     implementation ("com.github.topjohnwu.libsu:service:${libsuVersion}")
     implementation ("org.lsposed.hiddenapibypass:hiddenapibypass:2.0")
     implementation("io.github.gautamchibde:audiovisualizer:2.2.5")
+    compileOnly("io.github.libxposed:api:101.0.1")
 }
 

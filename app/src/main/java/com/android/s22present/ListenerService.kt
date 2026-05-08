@@ -25,7 +25,6 @@ import android.util.Log
 import android.view.Display
 import androidx.core.view.isInvisible
 import com.topjohnwu.superuser.ipc.RootService
-import java.io.File
 
 
 // This service listens for various things and tells the ScreenService what it should do.
@@ -97,16 +96,13 @@ class ListenerService : Service()
         val displaymanager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
         val display0 = displaymanager.displays[0]
         val display1 = displaymanager.displays[1]
-        val file = "settings"
-        val filedir = File(filesDir, file)
-        try
-        {
-            val settings = filedir.readText().split("|").toTypedArray()
-            Globals.style = settings[0].toString()
-            Globals.font = settings[1].toString()
-            if (settings.size > 2 && settings[2].isNotEmpty()) {
-                Globals.wakeTimeoutMs = Globals.wakeTimeoutMsForIndex(settings[2].toInt())
-            }
+        Globals.migrateSettingsIfNeeded(this)
+        try {
+            val prefs = getSharedPreferences(Globals.PREFS_APP, Context.MODE_PRIVATE)
+            Globals.style = prefs.getInt(Globals.KEY_STYLE, Globals.DEFAULT_STYLE).toString()
+            Globals.font = prefs.getInt(Globals.KEY_FONT, Globals.DEFAULT_FONT).toString()
+            Globals.wakeTimeoutMs = Globals.wakeTimeoutMsForIndex(
+                prefs.getInt(Globals.KEY_WAKE_TIMEOUT_INDEX, Globals.DEFAULT_WAKE_TIMEOUT_INDEX))
         }
         catch (e: Exception)
         {

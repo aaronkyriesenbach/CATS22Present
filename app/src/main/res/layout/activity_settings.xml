@@ -78,4 +78,26 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/labelWakeTimeout" />
 
+    <TextView
+        android:id="@+id/labelDebounce"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Key Debounce"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/spinnerWakeTimeout" />
+
+    <Spinner
+        android:id="@+id/spinnerDebounce"
+        android:layout_width="256dp"
+        android:layout_height="29dp"
+        android:layout_marginStart="31dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="31dp"
+        android:entries="@array/DebounceValues"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/labelDebounce" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
