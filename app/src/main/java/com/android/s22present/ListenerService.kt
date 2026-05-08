@@ -38,6 +38,8 @@ class ListenerService : Service()
     var rootservice: Messenger? = null
     private var wakeSessionActive = false
     private val mainHandler = Handler(Looper.getMainLooper())
+    private var lidClosedRunnable: Runnable? = null
+    private var lidOpenRunnable: Runnable? = null
     private val wakeTimeoutHandler = Handler(Looper.getMainLooper())
     private val wakeTimeoutRunnable = Runnable {
         wakeSessionActive = false
@@ -132,6 +134,7 @@ class ListenerService : Service()
                     lid = "open"
                     wakeSessionActive = false
                     wakeTimeoutHandler.removeCallbacks(wakeTimeoutRunnable)
+                    turnoff()
                 }
                 if (intent.action == "com.android.s22present.LIDCLOSED")
                 {
@@ -175,32 +178,38 @@ class ListenerService : Service()
             override fun onSensorChanged(event: SensorEvent)
             {
                 if (event.sensor.type == Sensor.TYPE_PROXIMITY) {
+                    // Cancel any pending lid callbacks to prevent race conditions
+                    // from rapid open/close sequences
+                    lidClosedRunnable?.let { mainHandler.removeCallbacks(it) }
+                    lidOpenRunnable?.let { mainHandler.removeCallbacks(it) }
+
                     if (event.values[0] == 0f)
                     {
-                        mainHandler.postDelayed(
+                        val runnable = Runnable {
+                            if (display0!!.state == Display.STATE_OFF)
                             {
-                                if (display0!!.state == Display.STATE_OFF)
-                                {
-                                    Log.v("S22PresSensList", "Shut")
-                                    Intent().also { broadcast -> broadcast.setAction("com.android.s22present.LIDCLOSED")
-                                        sendBroadcast(broadcast) }
-                                }
-                            }, 1500)
+                                Log.v("S22PresSensList", "Shut")
+                                Intent().also { broadcast -> broadcast.setAction("com.android.s22present.LIDCLOSED")
+                                    sendBroadcast(broadcast) }
+                            }
+                        }
+                        lidClosedRunnable = runnable
+                        mainHandler.postDelayed(runnable, 1500)
                     }
                     else
                     {
-                        mainHandler.postDelayed(
+                        val runnable = Runnable {
+                            if (display0!!.state == Display.STATE_ON)
                             {
-                                if (display0!!.state == Display.STATE_ON)
-                                {
-                                    Log.v("S22PresSensList", "Open")
-                                    Intent().also { broadcast -> broadcast.setAction("com.android.s22present.LIDOPEN")
-                                        sendBroadcast(broadcast)
-                                    }
+                                Log.v("S22PresSensList", "Open")
+                                Intent().also { broadcast -> broadcast.setAction("com.android.s22present.LIDOPEN")
+                                    sendBroadcast(broadcast)
                                 }
-                            }, 400)
+                            }
+                        }
+                        lidOpenRunnable = runnable
+                        mainHandler.postDelayed(runnable, 400)
                     }
-
                 }
             }
         }
